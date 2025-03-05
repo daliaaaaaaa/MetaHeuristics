@@ -1,5 +1,5 @@
 import time
-
+import random
 class Item:
     def __init__(self, weight, value):
         self.weight = weight
@@ -52,27 +52,17 @@ class KnapsackDFS:
         )
 
 if __name__ == "__main__":
-    items = [
-        Item(23, 92),
-        Item(31, 57),
-        Item(29, 49),
-        Item(44, 68),
-        Item(53, 60),
-        Item(38, 43),
-        Item(63, 67),
-        Item(85, 84),
-        Item(89, 87),
-        Item(82, 72),
-    ]
-    capacity = 165
+    # Generer des items aléatoires
+    items = [Item(random.randint(1, 20), random.randint(1, 20)) for _ in range(20)]
+    capacity = 100
 
     knapsack = KnapsackDFS(items, capacity)
     start_time = time.time()
     max_value, selected_items = knapsack.solve()
     end_time = time.time()
-    print(f"Execution time: {end_time - start_time} seconds")
 
     print(f"Maximum value achievable: {max_value}")
     print("Items in the sack:")
     for item in selected_items:
         print(f"  - {item}")
+    print(f"Execution time: {end_time - start_time} seconds")

@@ -1,3 +1,5 @@
+import time
+
 class Item:
     def __init__(self, weight, value):
         self.weight = weight
@@ -65,7 +67,10 @@ if __name__ == "__main__":
     capacity = 165
 
     knapsack = KnapsackDFS(items, capacity)
-    max_value,selected_items = knapsack.solve()
+    start_time = time.time()
+    max_value, selected_items = knapsack.solve()
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time} seconds")
 
     print(f"Maximum value achievable: {max_value}")
     print("Items in the sack:")

@@ -1,3 +1,4 @@
+import time
 class Item:
     def __init__(self, weight, value):
         self.weight = weight
@@ -57,10 +58,17 @@ if __name__ == "__main__":
     ]
     capacity = 165
 
+
     knapsack = KnapsackIterative(items, capacity)
+    start_time = time.time()
     max_value, selected_items = knapsack.solve()
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time} seconds")
 
     print(f"Maximum value achievable: {max_value}")
     print("Items in the sack:")
     for item in selected_items:
         print(f"  - {item}")
+    
+    print(f"Execution time: {execution_time} seconds")

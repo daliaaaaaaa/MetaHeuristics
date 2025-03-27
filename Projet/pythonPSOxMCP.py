@@ -95,13 +95,13 @@ class PSO_MCP:
             print(f"Iteration {iteration+1}/{self.num_iterations} - Covered: {global_best_covered}, Score: {global_best_score:.4f}")
 
             if no_improvement >= self.early_stop:
-                print(f"⏹️ Arrêt anticipé après {iteration+1} itérations.")
+                print(f"Arrêt anticipé après {iteration+1} itérations.")
                 break
 
             no_improvement += 1
 
         execution_time = time.time() - start_time
-        print(f"✅ Optimisation terminée en {execution_time:.2f} sec - Meilleure couverture: {global_best_covered}, Score final: {global_best_score:.4f}")
+        print(f"Optimisation terminée en {execution_time:.2f} sec - Meilleure couverture: {global_best_covered}, Score final: {global_best_score:.4f}")
         return global_best, global_best_covered, global_best_score, execution_time
 
     def update_velocity_binary(self, velocity, particle, personal_best, global_best):
@@ -125,44 +125,54 @@ def experiment(benchmark_files, benchmark_folder, type):
     for file in benchmark_files:
         file_path = os.path.join(benchmark_folder, file)
         benchmark = Benchmark(file_path, type)
-        pso = PSO_MCP(benchmark)
+        if type == "4":
+            pso = PSO_MCP(benchmark, num_particles=100, c2=1, w=0.8)
+        elif type == "A":
+            pso = PSO_MCP(benchmark, num_particles=75, c2=2, w=0.5)
+        elif type == "B":
+            pso = PSO_MCP(benchmark, num_particles=50, c2=1, w=0.5)
+        elif type == "C":
+            pso = PSO_MCP(benchmark, num_particles=50, c2=1, w=0.5)
+        else:
+            print(f"Type de benchmark inconnu: {type}")
 
-        print(f"\n🚀 Exécution de PSO sur {file}...")
+        print(f"\nExécution de PSO sur {file}...")
         best_solution, best_covered, best_score, exec_time = pso.run()
         results.append((file, best_solution, best_covered, best_score, exec_time))
     return results
+
 def run_all_benchmarks():
     """Exécute l'optimisation PSO sur tous les benchmarks"""
     benchmark_folders = ["Benchmark/4", "Benchmark/A", "Benchmark/B", "Benchmark/C"]
     all_results = []
 
     for benchmark_folder in benchmark_folders:
-        print(f"\n📂 Dossier de benchmarks: {benchmark_folder}")
+        print(f"\nDossier de benchmarks: {benchmark_folder}")
         benchmark_files = sorted([f for f in os.listdir(benchmark_folder) if f.endswith(".txt")])
         results = experiment(benchmark_files, benchmark_folder, benchmark_folder[-1])
         
         for file, _, best_cov, score, time in results:  # Fix tuple unpacking
             all_results.append((benchmark_folder, file, best_cov, score, time))
 
-    print("\n📊 Résumé des résultats après toutes les exécutions :")
+    print("\nRésumé des résultats après toutes les exécutions :")
     for folder, file, best_cov, score, time in all_results:
         print(f"{folder}/{file}: Couvert = {best_cov}, Score = {score:.4f}, Temps = {time:.2f}s")
 
 def run_one_benchmark(benchmark_folder):
     """Exécute l'optimisation PSO sur un benchmark spécifique"""
     benchmark_files = sorted([f for f in os.listdir(benchmark_folder) if f.endswith(".txt")])
-    results = experiment(benchmark_files, benchmark_folder, "4")
+    results = experiment(benchmark_files, benchmark_folder, benchmark_folder[-1])
     
-    print("\n📊 Résumé des résultats après toutes les exécutions :")
+    print("\nRésumé des résultats après toutes les exécutions :")
     for file, _, best_cov, score, time in results:  # Remove 'folder' (incorrect variable)
         print(f"{file}: Couvert = {best_cov}, Score = {score:.4f}, Temps = {time:.2f}s")
 
 def run_one_file(path):
     benchmark = Benchmark(path, path.split("Benchmark/")[1][0])
     pso = PSO_MCP(benchmark)
-    print(f"\n🚀 Exécution de PSO sur {path}...")
+    print(f"\nExécution de PSO sur {path}...")
     best_solution, best_covered, best_score, exec_time = pso.run()
-    print(f"\n📊 Résumé des résultats :")
+    print(f"\nRésumé des résultats :")
     print(f"{path}: Couvert = {best_covered}, Score = {best_score:.4f}, Temps = {exec_time:.2f}s")
 
 if __name__ == "__main__":
@@ -182,4 +192,4 @@ if __name__ == "__main__":
     elif choix == "3":
         run_all_benchmarks()
     else:
-        print("❌ Option invalide. Veuillez choisir 1, 2 ou 3.")
+        print("Option invalide. Veuillez choisir 1, 2 ou 3.")

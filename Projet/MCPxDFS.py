@@ -45,7 +45,8 @@ class DFSSolver:
         self.subsets = benchmark.subsets
         self.universe_size = benchmark.universe_size
         self.num_subsets = benchmark.num_subsets
-        self.k = k
+        # self.k = k
+        self.k = ceil(benchmark.universe_size * 2 / 3)  # Define k
         self.timeout = timeout
         self.start_time = None
         self.best_solution = []
@@ -123,9 +124,9 @@ if __name__ == "__main__":
     import time
     
     # Example with a small benchmark file
-    benchmark_file = "scp41.txt"  # Replace with your benchmark file
-    benchmark_type = "4"  # Set according to your benchmark type
-    k = 10  # Number of subsets to select
+    benchmark_file = "./Benchmark/A/scpa1.txt"  # Replace with your benchmark file
+    benchmark_type = "A"  # Set according to your benchmark type
+    # k = 40  # Number of subsets to select
     timeout = 60  # Timeout in seconds (1 minute)
     
     # Read benchmark
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     print(f"Benchmark loaded: {benchmark.universe_size} elements, {benchmark.num_subsets} subsets")
     
     # Solve using DFS
-    solver = DFSSolver(benchmark, k, timeout)
+    solver = DFSSolver(benchmark,timeout)
     result = solver.solve()
     
     # Print results
@@ -143,4 +144,6 @@ if __name__ == "__main__":
     print(f"Time taken: {result['time_taken']:.2f} seconds")
     if result['timeout_occurred']:
         print(f"Timeout occurred after {timeout} seconds - returned best solution found so far")
+
+
 

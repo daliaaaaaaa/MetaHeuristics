@@ -46,7 +46,8 @@ class DFSSolver:
         self.universe_size = benchmark.universe_size
         self.num_subsets = benchmark.num_subsets
         # self.k = k
-        self.k = ceil(benchmark.universe_size * 2 / 3)  # Define k
+        # self.k = ceil(benchmark.universe_size * 0.2)  # Define k
+        self.k = ceil(benchmark.universe_size * 0.2) if benchmark.benchmark_type == "4" else ceil(benchmark.universe_size * 0.13)
         self.timeout = timeout
         self.start_time = None
         self.best_solution = []
@@ -124,9 +125,8 @@ if __name__ == "__main__":
     import time
     
     # Example with a small benchmark file
-    benchmark_file = "./Benchmark/A/scpa1.txt"  # Replace with your benchmark file
-    benchmark_type = "A"  # Set according to your benchmark type
-    # k = 40  # Number of subsets to select
+    benchmark_file = "./Benchmark/4/scp41.txt"  # Replace with your benchmark file
+    benchmark_type = "4"  # Set according to your benchmark type
     timeout = 60  # Timeout in seconds (1 minute)
     
     # Read benchmark

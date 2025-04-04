@@ -1,3 +1,4 @@
+import os
 from math import ceil
 import time
 
@@ -39,15 +40,24 @@ class Benchmark:
                     subset_to_rows[subset] = []
                 subset_to_rows[subset].append(row)
         return subset_to_rows, m, n
+    def print_binary_matrix(self):
+        """Affiche la matrice binaire représentant les relations élément-sous-ensemble."""
+        matrix = [[0] * self.num_subsets for _ in range(self.universe_size)]
+        for subset, elements in self.subsets.items():
+            for element in elements:
+                matrix[element - 1][subset - 1] = 1  # Ajustement des index
+        print("\nBinary Matrix Representation:")
+        print("    " + " ".join(f"S{sub+1}" for sub in range(self.num_subsets)))  # En-tête
+        for i, row in enumerate(matrix):
+            print(f"E{i+1:2} " + " ".join(str(val) for val in row))
 
 class DFSSolver:
-    def __init__(self, benchmark, k, timeout=300):
+    def __init__(self, benchmark, k, timeout=3600):
         self.subsets = benchmark.subsets
         self.universe_size = benchmark.universe_size
         self.num_subsets = benchmark.num_subsets
-        # self.k = k
-        # self.k = ceil(benchmark.universe_size * 0.2)  # Define k
-        self.k = ceil(benchmark.universe_size * 0.2) if benchmark.benchmark_type == "4" else ceil(benchmark.universe_size * 0.13)
+        # self.k = ceil(benchmark.universe_size * 0.2) if benchmark.benchmark_type == "4" else ceil(benchmark.universe_size * 0.13)
+        self.k = ceil(benchmark.universe_size * 2/3) 
         self.timeout = timeout
         self.start_time = None
         self.best_solution = []
@@ -65,6 +75,7 @@ class DFSSolver:
         self.nodes_explored += 1
         print(f"Exploring node {self.nodes_explored}: Covered {len(covered_elements)} elements")
         
+        # If we've selected the required number of subsets
         if len(selected_subsets) == self.k:
             coverage = len(covered_elements)
             if coverage > self.best_coverage:
@@ -74,6 +85,7 @@ class DFSSolver:
                 print(f"New best solution found! Coverage: {self.best_coverage}")
             return
         
+        # Prune branch if we can't reach the required number of subsets
         if len(selected_subsets) + len(remaining) < self.k:
             print("Pruning branch: Not enough subsets left to reach k.")
             return
@@ -87,9 +99,8 @@ class DFSSolver:
             print("Pruning branch: Upper bound not better than current best.")
             return
         
-        potential_subsets = sorted(remaining, key=lambda s: len(set(self.subsets[s]) - covered_elements), reverse=True)
-        
-        for subset in potential_subsets:
+        # Directly loop through all remaining subsets without any heuristic-based sorting
+        for subset in remaining:
             if subset in remaining:
                 print(f"Selecting subset {subset}")
                 new_covered = covered_elements.union(set(self.subsets[subset]))
@@ -119,19 +130,38 @@ class DFSSolver:
             "timeout_occurred": self.timeout_occurred,
             "time_taken": time.time() - self.start_time 
         }
+    
+    def print_solution_matrix(self):
+        """Affiche la matrice binaire de la meilleure solution trouvée."""
+        if not self.best_solution:
+            print("Aucune solution trouvée.")
+            return
+        matrix = [[0] * len(self.best_solution) for _ in range(self.universe_size)]
+        subset_indices = {subset: idx for idx, subset in enumerate(self.best_solution)}
+        for subset in self.best_solution:
+            for element in self.subsets[subset]:
+                matrix[element - 1][subset_indices[subset]] = 1  # Ajustement des index
+        
+        print("\nBinary Matrix of Best Solution:")
+        print("    " + " ".join(f"S{sub}" for sub in self.best_solution))  # En-tête
+        for i, row in enumerate(matrix):
+            print(f"E{i+1:2} " + " ".join(str(val) for val in row))
+
 
 # Example usage
 if __name__ == "__main__":
     import time
     
     # Example with a small benchmark file
-    benchmark_file = "./Benchmark/4/scp41.txt"  # Replace with your benchmark file
-    benchmark_type = "4"  # Set according to your benchmark type
-    timeout = 60  # Timeout in seconds (1 minute)
+    benchmark_file = "./Benchmark/A/scpa1.txt"  # Replace with your benchmark file
+    benchmark_type = "A"  # Set according to your benchmark type
+    timeout = 3600  # Timeout in seconds (1 minute)
     
     # Read benchmark
+
     benchmark = Benchmark(benchmark_file, benchmark_type)
     print(f"Benchmark loaded: {benchmark.universe_size} elements, {benchmark.num_subsets} subsets")
+
     
     # Solve using DFS
     solver = DFSSolver(benchmark,timeout)
@@ -142,8 +172,45 @@ if __name__ == "__main__":
     print(f"Coverage: {result['coverage']} out of {benchmark.universe_size} elements ({result['coverage']/benchmark.universe_size*100:.2f}%)")
     print(f"Nodes explored: {result['nodes_explored']}")
     print(f"Time taken: {result['time_taken']:.2f} seconds")
+    # benchmark.print_binary_matrix()
+    # solver.print_solution_matrix()
+
     if result['timeout_occurred']:
         print(f"Timeout occurred after {timeout} seconds - returned best solution found so far")
 
 
 
+
+if __name__ == "__main__":
+    benchmark_types = ["4", "A", "B", "C"]
+    base_path = "./Benchmark"  # Adjust this if your folder structure differs
+    timeout = 300  # 15 minutes in seconds
+    output_file = "resultsTable.txt"
+
+    with open(output_file, "w") as out:
+        for b_type in benchmark_types:
+            type_path = os.path.join(base_path, b_type)
+            if not os.path.exists(type_path):
+                print(f"Directory {type_path} does not exist.")
+                continue
+
+            out.write(f"\n--- Benchmark Type {b_type} ---\n")
+
+            for filename in os.listdir(type_path):
+                if filename.endswith(".txt"):
+                    file_path = os.path.join(type_path, filename)
+                    out.write(f"\nRunning benchmark: {filename}\n")
+                    try:
+                        benchmark = Benchmark(file_path, b_type)
+                        solver = DFSSolver(benchmark, timeout)
+                        result = solver.solve()
+
+                        out.write(f"Best subsets: {result['selected_subsets']}\n")
+                        out.write(f"Coverage: {result['coverage']} / {benchmark.universe_size} "
+                                  f"({result['coverage']/benchmark.universe_size*100:.2f}%)\n")
+                        out.write(f"Nodes explored: {result['nodes_explored']}\n")
+                        out.write(f"Time taken: {result['time_taken']:.2f} seconds\n")
+                        if result['timeout_occurred']:
+                            out.write("Timeout occurred.\n")
+                    except Exception as e:
+                        out.write(f"Error while processing {filename}: {str(e)}\n")

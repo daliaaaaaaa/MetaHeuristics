@@ -50,7 +50,7 @@ class PSO_MCP:
         self.w = w
         self.vmax = vmax
         self.early_stop = early_stop
-        self.k = ceil(benchmark.universe_size * 2 / 3)  # Define k
+        self.k = ceil(benchmark.num_subsets * 2 / 3)  # Define k
 
     def fitness_func(self, solution):
         """Évalue une solution en mesurant le nombre d'éléments couverts"""
@@ -63,13 +63,13 @@ class PSO_MCP:
     def run(self):
         """Exécute l'optimisation PSO"""
         np.random.seed(42)
-        particles = np.zeros((self.num_particles, self.benchmark.universe_size), dtype=int)
+        particles = np.zeros((self.num_particles, self.benchmark.num_subsets), dtype=int)
         
         for i in range(self.num_particles):
-            ones_indices = np.random.choice(self.benchmark.universe_size, self.k, replace=False)
+            ones_indices = np.random.choice(self.benchmark.num_subsets, self.k, replace=False)
             particles[i, ones_indices] = 1
         
-        velocities = np.zeros((self.num_particles, self.benchmark.universe_size))
+        velocities = np.zeros((self.num_particles, self.benchmark.num_subsets))
         personal_best = particles.copy()
         personal_best_scores = np.array([self.fitness_func(p)[1] for p in particles])
         global_best_idx = np.argmax(personal_best_scores)
@@ -109,14 +109,6 @@ class PSO_MCP:
         print(f"Optimisation terminée en {execution_time:.2f} sec - Meilleure couverture: {global_best_covered}, Score final: {global_best_score *100 :.4f} %")
         
         return global_best, global_best_covered, global_best_score, execution_time
-
-        # # Tracer l'évolution du score
-        # plt.plot(best_scores, label='Best Score')
-        # plt.xlabel('Iterations')
-        # plt.ylabel('Score')
-        # plt.title('Évolution du score pendant l'optimisation')
-        # plt.legend()
-        # plt.show()
 
     def update_velocity_binary(self, velocity, particle, personal_best, global_best):
         """Binary PSO velocity update using discrete difference"""

@@ -52,7 +52,7 @@ class Benchmark:
             print(f"E{i+1:2} " + " ".join(str(val) for val in row))
 
 class DFSSolver:
-    def __init__(self, benchmark, k, timeout=3600):
+    def __init__(self, benchmark, k, timeout=300):
         self.subsets = benchmark.subsets
         self.universe_size = benchmark.universe_size
         self.num_subsets = benchmark.num_subsets
@@ -147,45 +147,12 @@ class DFSSolver:
         for i, row in enumerate(matrix):
             print(f"E{i+1:2} " + " ".join(str(val) for val in row))
 
-
-# Example usage
 if __name__ == "__main__":
-    import time
-    
-    # Example with a small benchmark file
-    benchmark_file = "./Benchmark/A/scpa1.txt"  # Replace with your benchmark file
-    benchmark_type = "A"  # Set according to your benchmark type
-    timeout = 3600  # Timeout in seconds (1 minute)
-    
-    # Read benchmark
-
-    benchmark = Benchmark(benchmark_file, benchmark_type)
-    print(f"Benchmark loaded: {benchmark.universe_size} elements, {benchmark.num_subsets} subsets")
-
-    
-    # Solve using DFS
-    solver = DFSSolver(benchmark,timeout)
-    result = solver.solve()
-    
-    # Print results
-    print(f"Best solution: {result['selected_subsets']}")
-    print(f"Coverage: {result['coverage']} out of {benchmark.universe_size} elements ({result['coverage']/benchmark.universe_size*100:.2f}%)")
-    print(f"Nodes explored: {result['nodes_explored']}")
-    print(f"Time taken: {result['time_taken']:.2f} seconds")
-    # benchmark.print_binary_matrix()
-    # solver.print_solution_matrix()
-
-    if result['timeout_occurred']:
-        print(f"Timeout occurred after {timeout} seconds - returned best solution found so far")
-
-
-
-
-if __name__ == "__main__":
-    benchmark_types = ["4", "A", "B", "C"]
+    # benchmark_types = ["4", "A", "B", "C"]
+    benchmark_types = ["A"]
     base_path = "./Benchmark"  # Adjust this if your folder structure differs
-    timeout = 300  # 15 minutes in seconds
-    output_file = "resultsTable.txt"
+    timeout = 300  # 5 minutes in seconds
+    output_file = "resultsTable_A.txt"
 
     with open(output_file, "w") as out:
         for b_type in benchmark_types:

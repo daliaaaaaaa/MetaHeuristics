@@ -127,24 +127,17 @@ class DFSSolver:
             "coverage": self.best_coverage,
             "nodes_explored": self.nodes_explored,
             "timeout_occurred": self.timeout_occurred,
-            "time_taken": time.time() - self.start_time 
+            "time_taken": time.time() - self.start_time,
+            "binary_vector": self.get_binary_vector()
         }
     
-    def print_solution_matrix(self):
-        """Affiche la matrice binaire de la meilleure solution trouvée."""
-        if not self.best_solution:
-            print("Aucune solution trouvée.")
-            return
-        matrix = [[0] * len(self.best_solution) for _ in range(self.universe_size)]
-        subset_indices = {subset: idx for idx, subset in enumerate(self.best_solution)}
-        for subset in self.best_solution:
-            for element in self.subsets[subset]:
-                matrix[element - 1][subset_indices[subset]] = 1  # Ajustement des index
-        
-        print("\nBinary Matrix of Best Solution:")
-        print("    " + " ".join(f"S{sub}" for sub in self.best_solution))  # En-tête
-        for i, row in enumerate(matrix):
-            print(f"E{i+1:2} " + " ".join(str(val) for val in row))
+    def get_binary_vector(self):
+        """Retourne le vecteur binaire de la meilleure solution trouvée."""
+        binary_vector = [0] * self.num_subsets
+        for idx in self.best_solution:
+            binary_vector[idx - 1] = 1  # -1 because subsets are 1-indexed
+        return binary_vector
+
 
 
 # Example usage
@@ -171,8 +164,7 @@ if __name__ == "__main__":
     print(f"Coverage: {result['coverage']} out of {benchmark.universe_size} elements ({result['coverage']/benchmark.universe_size*100:.2f}%)")
     print(f"Nodes explored: {result['nodes_explored']}")
     print(f"Time taken: {result['time_taken']:.2f} seconds")
-    # benchmark.print_binary_matrix()
-    solver.print_solution_matrix()
+ 
 
     if result['timeout_occurred']:
         print(f"Timeout occurred after {timeout} seconds - returned best solution found so far")

@@ -40,23 +40,12 @@ class Benchmark:
                     subset_to_rows[subset] = []
                 subset_to_rows[subset].append(row)
         return subset_to_rows, m, n
-    def print_binary_matrix(self):
-        """Affiche la matrice binaire représentant les relations élément-sous-ensemble."""
-        matrix = [[0] * self.num_subsets for _ in range(self.universe_size)]
-        for subset, elements in self.subsets.items():
-            for element in elements:
-                matrix[element - 1][subset - 1] = 1  # Ajustement des index
-        print("\nBinary Matrix Representation:")
-        print("    " + " ".join(f"S{sub+1}" for sub in range(self.num_subsets)))  # En-tête
-        for i, row in enumerate(matrix):
-            print(f"E{i+1:2} " + " ".join(str(val) for val in row))
-
+    
 class DFSSolver:
     def __init__(self, benchmark, k, timeout=300):
         self.subsets = benchmark.subsets
         self.universe_size = benchmark.universe_size
         self.num_subsets = benchmark.num_subsets
-        # self.k = ceil(benchmark.universe_size * 0.2) if benchmark.benchmark_type == "4" else ceil(benchmark.universe_size * 0.13)
         self.k = ceil(benchmark.universe_size * 2/3) 
         self.timeout = timeout
         self.start_time = None
@@ -130,22 +119,6 @@ class DFSSolver:
             "timeout_occurred": self.timeout_occurred,
             "time_taken": time.time() - self.start_time 
         }
-    
-    def print_solution_matrix(self):
-        """Affiche la matrice binaire de la meilleure solution trouvée."""
-        if not self.best_solution:
-            print("Aucune solution trouvée.")
-            return
-        matrix = [[0] * len(self.best_solution) for _ in range(self.universe_size)]
-        subset_indices = {subset: idx for idx, subset in enumerate(self.best_solution)}
-        for subset in self.best_solution:
-            for element in self.subsets[subset]:
-                matrix[element - 1][subset_indices[subset]] = 1  # Ajustement des index
-        
-        print("\nBinary Matrix of Best Solution:")
-        print("    " + " ".join(f"S{sub}" for sub in self.best_solution))  # En-tête
-        for i, row in enumerate(matrix):
-            print(f"E{i+1:2} " + " ".join(str(val) for val in row))
 
 if __name__ == "__main__":
     # benchmark_types = ["4", "A", "B", "C"]

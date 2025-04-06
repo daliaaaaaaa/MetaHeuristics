@@ -39,23 +39,13 @@ class Benchmark:
                     subset_to_rows[subset] = []
                 subset_to_rows[subset].append(row)
         return subset_to_rows, m, n
-    def print_binary_matrix(self):
-        """Affiche la matrice binaire représentant les relations élément-sous-ensemble."""
-        matrix = [[0] * self.num_subsets for _ in range(self.universe_size)]
-        for subset, elements in self.subsets.items():
-            for element in elements:
-                matrix[element - 1][subset - 1] = 1  # Ajustement des index
-        print("\nBinary Matrix Representation:")
-        print("    " + " ".join(f"S{sub+1}" for sub in range(self.num_subsets)))  # En-tête
-        for i, row in enumerate(matrix):
-            print(f"E{i+1:2} " + " ".join(str(val) for val in row))
+
 
 class DFSSolver:
     def __init__(self, benchmark, k, timeout=60):
         self.subsets = benchmark.subsets
         self.universe_size = benchmark.universe_size
         self.num_subsets = benchmark.num_subsets
-        # self.k = ceil(benchmark.universe_size * 0.2) if benchmark.benchmark_type == "4" else ceil(benchmark.universe_size * 0.13)
         self.k = ceil(benchmark.universe_size * 2/3) 
         self.timeout = timeout
         self.start_time = None
@@ -128,15 +118,8 @@ class DFSSolver:
             "nodes_explored": self.nodes_explored,
             "timeout_occurred": self.timeout_occurred,
             "time_taken": time.time() - self.start_time,
-            "binary_vector": self.get_binary_vector()
         }
     
-    def get_binary_vector(self):
-        """Retourne le vecteur binaire de la meilleure solution trouvée."""
-        binary_vector = [0] * self.num_subsets
-        for idx in self.best_solution:
-            binary_vector[idx - 1] = 1  # -1 because subsets are 1-indexed
-        return binary_vector
 
 
 
